@@ -1,1 +1,15 @@
-HHHH
+# Secret Keys (Sabse zaroori)
+.env
+.env.local
+
+# Node Modules (Ye folders bahut bade hote hain aur Vercel khud install kar leta hai)
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS related files
+.DS_Store
+Thumbs.db
