@@ -2,53 +2,44 @@ const startBtn = document.getElementById('start-btn');
 const status = document.getElementById('status');
 const chatDisplay = document.getElementById('chat-display');
 
-// Browser Voice Recognition Setup
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-if (!SpeechRecognition) {
-    status.innerText = "Aapka browser voice recognition support nahi karta.";
-} else {
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'hi-IN'; // Hindi input ke liye
+const recognition = new SpeechRecognition();
+recognition.lang = 'hi-IN';
 
-    startBtn.onclick = () => {
-        recognition.start();
-        status.innerText = "Main sun raha hoon...";
-    };
+startBtn.onclick = () => {
+    recognition.start();
+    status.innerText = "Suna ja raha hai...";
+};
 
-    recognition.onresult = async (event) => {
-        const userText = event.results[0][0].transcript;
-        status.innerText = "Aapne kaha: " + userText;
+recognition.onresult = async (event) => {
+    const userText = event.results[0][0].transcript;
+    status.innerText = "Aapne kaha: " + userText;
+    chatDisplay.innerText = "AI soch raha hai...";
 
-        try {
-            // Vercel Backend (api/chat.js) ko data bhejna
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: userText })
-            });
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: userText })
+        });
 
-            const data = await response.json();
+        const data = await response.json();
 
-            // Check karein ki data sahi mila ya nahi
-            if (data.text) {
-                chatDisplay.innerText = data.text;
-                speak(data.text);
-                status.innerText = "Taiyar hai...";
-            } else {
-                // Agar 'undefined' ki dikkat hai toh ye error dikhayega
-                console.error("API Error:", data);
-                chatDisplay.innerText = "AI se jawab nahi mila. Check API Key!";
-            }
-        } catch (err) {
-            console.error("Fetch Error:", err);
-            status.innerText = "Server se connect nahi ho paya.";
+        // 'undefined' se bachne ke liye check
+        if (data && data.text) {
+            chatDisplay.innerText = data.text;
+            speak(data.text);
+        } else {
+            chatDisplay.innerText = "Error: " + (data.error || "Jawab nahi mil paya");
         }
-    };
-}
+    } catch (err) {
+        chatDisplay.innerText = "Network Error: Backend se connect nahi ho paya.";
+    }
+    status.innerText = "Taiyar hai...";
+};
 
-// Bolne wala function
 function speak(text) {
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'hi-IN'; // Hindi voice output
+    utterance.lang = 'hi-IN';
     window.speechSynthesis.speak(utterance);
 }
