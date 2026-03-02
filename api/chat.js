@@ -1,36 +1,36 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
 module.exports = async (req, res) => {
-  // Check if it's a POST request
   if (req.method !== 'POST') {
     return res.status(405).json({ text: "Method Not Allowed" });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ text: "Vercel settings mein API Key nahi mili!" });
+    return res.status(500).json({ text: "API Key missing in Vercel!" });
   }
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    
-    // Stable Model use karein
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
     const { prompt } = req.body;
-    if (!prompt) {
-      return res.status(400).json({ text: "Aapne kuch bola nahi." });
+    
+    // Direct API call for better stability
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt || "Hello" }] }]
+        })
+      }
+    );
+
+    const data = await response.json();
+    
+    if (data.candidates && data.candidates[0].content.parts[0].text) {
+      res.status(200).json({ text: data.candidates[0].content.parts[0].text });
+    } else {
+      res.status(500).json({ text: "AI Response Error: " + JSON.stringify(data) });
     }
-
-    // AI content generate karein
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-
-    // Sahi format mein jawab bhejein
-    res.status(200).json({ text: text });
   } catch (error) {
-    console.error("Gemini Error:", error);
-    res.status(500).json({ text: "AI Response Error: " + error.message });
+    res.status(500).json({ text: "Server Error: " + error.message });
   }
 };
