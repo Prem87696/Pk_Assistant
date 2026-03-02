@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
     
     // Aapke system ke anusar Gemini 2.0 Flash model ka upyog
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -36,4 +36,5 @@ module.exports = async (req, res) => {
     res.status(500).json({ text: "Server Error: " + error.message });
   }
 };
+
 
