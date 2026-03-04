@@ -1,4 +1,4 @@
-```javascript
+ 
 const startBtn = document.getElementById("start-btn");
 const status = document.getElementById("status");
 const chatDisplay = document.getElementById("chat-display");
@@ -127,4 +127,5 @@ utterance.lang="hi-IN";
 window.speechSynthesis.speak(utterance);
 
 }
-```
+ 
+
