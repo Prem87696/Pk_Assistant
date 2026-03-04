@@ -1,57 +1,74 @@
- 
+```html
 <!DOCTYPE html>
 <html lang="hi">
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>PK AI Assistant</title>
 
 <style>
 
 body{
-font-family:Arial;
-background:#0f172a;
-color:white;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
 margin:0;
+font-family:Arial, sans-serif;
+background:#0f172a;
+display:flex;
+align-items:center;
+justify-content:center;
+height:100vh;
+color:white;
 }
 
 .card{
 background:#1e293b;
-padding:25px;
-border-radius:12px;
-width:320px;
+padding:30px;
+border-radius:14px;
+width:340px;
 text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+h2{
+margin-top:0;
+}
+
+#chat-display{
+background:#334155;
+padding:12px;
+border-radius:8px;
+min-height:50px;
+margin:15px 0;
 }
 
 button{
 background:#3b82f6;
 border:none;
+color:white;
 padding:10px 16px;
 border-radius:8px;
-color:white;
 cursor:pointer;
+font-size:14px;
+}
+
+button:hover{
+background:#2563eb;
 }
 
 input{
 width:70%;
-padding:8px;
+padding:10px;
 border-radius:6px;
 border:none;
+outline:none;
 margin-right:5px;
 }
 
-#chat-display{
-margin:15px 0;
-background:#334155;
-padding:10px;
-border-radius:8px;
-min-height:40px;
+.row{
+display:flex;
+justify-content:center;
+margin-top:10px;
 }
 
 </style>
@@ -70,11 +87,17 @@ min-height:40px;
 
 <button id="start-btn">🎤 Bolne ke liye Dabayein</button>
 
-<br><br>
+<div class="row">
 
-<input id="text-input" placeholder="Message likhein..." />
+<input
+id="text-input"
+placeholder="Message likhein..."
+autocomplete="off"
+/>
 
 <button id="send-btn">Send</button>
+
+</div>
 
 </div>
 
@@ -82,5 +105,4 @@ min-height:40px;
 
 </body>
 </html>
- 
-
+```
