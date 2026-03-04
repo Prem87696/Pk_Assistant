@@ -1,4 +1,4 @@
-```javascript
+ 
 export default async function handler(req, res) {
 
   if (req.method !== "POST") {
@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ text: "Missing API key" });
+    return res.status(500).json({ text: "API key missing in Vercel" });
   }
 
   try {
@@ -36,15 +36,15 @@ export default async function handler(req, res) {
 
     if (!r.ok) {
       return res.status(500).json({
-        text: data.error?.message || "Gemini error"
+        text: data.error?.message || "Gemini API error"
       });
     }
 
-    const text =
+    const aiText =
       data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     return res.status(200).json({
-      text: text || "No response"
+      text: aiText || "AI response empty"
     });
 
   } catch (e) {
@@ -56,4 +56,4 @@ export default async function handler(req, res) {
   }
 
 }
-```
+ 
