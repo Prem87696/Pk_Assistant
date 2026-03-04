@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ text: "API Key missing in Vercel" });
+    return res.status(500).json({ text: "API Key missing" });
   }
 
   try {
@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
     const { prompt } = req.body || {};
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: {
