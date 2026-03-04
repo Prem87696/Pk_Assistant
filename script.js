@@ -27,18 +27,21 @@ recognition.interimResults = false;
 
 startBtn.onclick = () => {
 
-recognition.start();
-status.innerText = "Suna ja raha hai...";
+  chatDisplay.innerText = "";
+
+  recognition.start();
+
+  status.innerText = "Suna ja raha hai...";
 
 };
 
 recognition.onresult = (event) => {
 
-const userText = event.results[0][0].transcript;
+  const userText = event.results[0][0].transcript;
 
-status.innerText = "Aapne kaha: " + userText;
+  status.innerText = "Aapne kaha: " + userText;
 
-sendToAI(userText);
+  sendToAI(userText);
 
 };
 
@@ -148,3 +151,4 @@ window.speechSynthesis.speak(utterance);
 
 });
  
+
