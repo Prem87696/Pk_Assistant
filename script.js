@@ -79,6 +79,7 @@ sendToAI(userText);
 
 /* -------- API CALL -------- */
 
+
 async function sendToAI(userText){
 
 chatDisplay.innerText = "AI soch raha hai...";
@@ -128,11 +129,12 @@ chatDisplay.innerText="AI ne koi response nahi diya.";
 
 }catch(err){
 
-chatDisplay.innerText="Network Error: Server se connection nahi hua.";
+chatDisplay.innerText="Server se connection nahi hua.";
 
 }
 
 }
+
 
 /* -------- SPEECH OUTPUT -------- */
 
@@ -151,4 +153,5 @@ window.speechSynthesis.speak(utterance);
 
 });
  
+
 
