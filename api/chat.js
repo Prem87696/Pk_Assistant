@@ -1,13 +1,13 @@
 module.exports = async (req, res) => {
 
-  if (req.method !== 'POST') {
+  if (req.method !== "POST") {
     return res.status(405).json({ text: "Method Not Allowed" });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ text: "Vercel settings mein API Key nahi mili!" });
+    return res.status(500).json({ text: "API key missing" });
   }
 
   try {
@@ -15,13 +15,17 @@ module.exports = async (req, res) => {
     const { prompt } = req.body || {};
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           contents: [
-            { parts: [{ text: prompt || "Namaste" }] }
+            {
+              parts: [{ text: prompt || "Namaste" }]
+            }
           ]
         })
       }
@@ -31,14 +35,15 @@ module.exports = async (req, res) => {
 
     if (!response.ok) {
       return res.status(500).json({
-        text: "Gemini Error: " + (data.error?.message || "Unknown error")
+        text: "Gemini Error: " + (data.error?.message || "Unknown")
       });
     }
 
-    const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const aiText =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     res.status(200).json({
-      text: aiText || "AI ne koi jawab nahi diya"
+      text: aiText || "AI response empty"
     });
 
   } catch (error) {
