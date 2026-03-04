@@ -1,21 +1,85 @@
+```html
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PK Assistant</title>
-    <link rel="stylesheet" href="style.css">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>PK AI Assistant</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+
+.card{
+background:#1e293b;
+padding:25px;
+border-radius:12px;
+width:320px;
+text-align:center;
+}
+
+button{
+background:#3b82f6;
+border:none;
+padding:10px 16px;
+border-radius:8px;
+color:white;
+cursor:pointer;
+}
+
+input{
+width:70%;
+padding:8px;
+border-radius:6px;
+border:none;
+margin-right:5px;
+}
+
+#chat-display{
+margin:15px 0;
+background:#334155;
+padding:10px;
+border-radius:8px;
+min-height:40px;
+}
+
+</style>
+
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>PK AI Assistant</h1>
-            <div class="status-dot" id="dot"></div>
-        </div>
-        <div id="chat-display">Yahan AI ka jawab dikhega...</div>
-        <button id="start-btn">🎤 Bolne ke liye Dabayein</button>
-        <p id="status">Taiyar hai...</p>
-    </div>
-    <script src="script.js"></script>
+
+<div class="card">
+
+<h2>PK AI Assistant</h2>
+
+<div id="chat-display">Tiyar hai...</div>
+
+<p id="status"></p>
+
+<button id="start-btn">🎤 Bolne ke liye Dabayein</button>
+
+<br><br>
+
+<input id="text-input" placeholder="Message likhein..." />
+
+<button id="send-btn">Send</button>
+
+</div>
+
+<script src="chat.js"></script>
+
 </body>
 </html>
+```
