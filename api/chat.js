@@ -1,3 +1,4 @@
+```javascript
 module.exports = async (req, res) => {
 
   if (req.method !== "POST") {
@@ -7,7 +8,7 @@ module.exports = async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ text: "API Key missing" });
+    return res.status(500).json({ text: "API key missing" });
   }
 
   try {
@@ -15,7 +16,7 @@ module.exports = async (req, res) => {
     const { prompt } = req.body || {};
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: {
@@ -57,3 +58,4 @@ module.exports = async (req, res) => {
   }
 
 };
+```
