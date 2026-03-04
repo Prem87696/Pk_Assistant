@@ -1,4 +1,6 @@
  
+document.addEventListener("DOMContentLoaded", () => {
+
 const startBtn = document.getElementById("start-btn");
 const status = document.getElementById("status");
 const chatDisplay = document.getElementById("chat-display");
@@ -9,23 +11,16 @@ const sendBtn = document.getElementById("send-btn");
 const SpeechRecognition =
 window.SpeechRecognition || window.webkitSpeechRecognition;
 
-/* ---------------- VOICE SYSTEM ---------------- */
+/* -------- VOICE SYSTEM -------- */
 
-if (!SpeechRecognition) {
-
-status.innerText = "Browser speech recognition support nahi karta.";
-
-} else {
+if (SpeechRecognition) {
 
 const recognition = new SpeechRecognition();
 
 recognition.lang = "hi-IN";
-recognition.continuous = false;
-recognition.interimResults = false;
 
 startBtn.onclick = () => {
 
-chatDisplay.innerText = "";
 recognition.start();
 status.innerText = "Suna ja raha hai...";
 
@@ -41,26 +36,14 @@ sendToAI(userText);
 
 };
 
-recognition.onerror = (event) => {
-
-status.innerText = "Speech Error: " + event.error;
-
-};
-
 }
 
-/* ---------------- TEXT CHAT ---------------- */
+/* -------- TEXT CHAT -------- */
 
 sendBtn.onclick = sendText;
 
-textInput.addEventListener("keypress",function(e){
-
-if(e.key==="Enter"){
-
-sendText();
-
-}
-
+textInput.addEventListener("keypress",(e)=>{
+if(e.key==="Enter") sendText();
 });
 
 function sendText(){
@@ -77,7 +60,7 @@ sendToAI(userText);
 
 }
 
-/* ---------------- API CALL ---------------- */
+/* -------- API CALL -------- */
 
 async function sendToAI(userText){
 
@@ -86,41 +69,16 @@ chatDisplay.innerText = "AI soch raha hai...";
 try{
 
 const response = await fetch("/api/chat",{
-
 method:"POST",
-
 headers:{
 "Content-Type":"application/json"
 },
-
 body:JSON.stringify({
 prompt:userText
 })
-
 });
 
-const raw = await response.text();
-
-let data;
-
-try{
-
-data = JSON.parse(raw);
-
-}catch{
-
-data = {text:raw};
-
-}
-
-if(!response.ok){
-
-chatDisplay.innerText =
-data.text || "Server Error: AI response nahi mila.";
-
-return;
-
-}
+const data = await response.json();
 
 if(data && data.text){
 
@@ -130,19 +88,19 @@ speak(data.text);
 
 }else{
 
-chatDisplay.innerText="AI ne koi response nahi diya.";
+chatDisplay.innerText="AI response nahi mila.";
 
 }
 
 }catch(err){
 
-chatDisplay.innerText="Network Error: Server se connection nahi hua.";
+chatDisplay.innerText="Server error.";
 
 }
 
 }
 
-/* ---------------- SPEECH OUTPUT ---------------- */
+/* -------- SPEECH OUTPUT -------- */
 
 function speak(text){
 
@@ -152,9 +110,9 @@ const utterance = new SpeechSynthesisUtterance(text);
 
 utterance.lang="hi-IN";
 
-utterance.rate=1;
-
 window.speechSynthesis.speak(utterance);
 
 }
+
+});
  
