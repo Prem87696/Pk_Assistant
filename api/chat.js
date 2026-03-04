@@ -1,159 +1,63 @@
- 
-document.addEventListener("DOMContentLoaded", () => {
 
-const startBtn = document.getElementById("start-btn");
-const status = document.getElementById("status");
-const chatDisplay = document.getElementById("chat-display");
+export default async function handler(req, res) {
 
-const textInput = document.getElementById("text-input");
-const sendBtn = document.getElementById("send-btn");
-
-const SpeechRecognition =
-window.SpeechRecognition || window.webkitSpeechRecognition;
-
-/* ---------------- VOICE SYSTEM ---------------- */
-
-if (!SpeechRecognition) {
-
-status.innerText = "Browser speech recognition support nahi karta.";
-
-} else {
-
-const recognition = new SpeechRecognition();
-
-recognition.lang = "hi-IN";
-recognition.continuous = false;
-recognition.interimResults = false;
-
-startBtn.onclick = () => {
-
-chatDisplay.innerText = "";
-recognition.start();
-
-status.innerText = "Suna ja raha hai...";
-
-};
-
-recognition.onresult = (event) => {
-
-const userText = event.results[0][0].transcript;
-
-status.innerText = "Aapne kaha: " + userText;
-
-sendToAI(userText);
-
-};
-
-recognition.onerror = (event) => {
-
-status.innerText = "Speech Error: " + event.error;
-
-};
-
+if (req.method !== "POST") {
+return res.status(405).json({ text: "Method Not Allowed" });
 }
 
-/* ---------------- TEXT CHAT ---------------- */
+const apiKey = process.env.GEMINI_API_KEY;
 
-sendBtn.onclick = sendText;
-
-textInput.addEventListener("keypress",(e)=>{
-
-if(e.key === "Enter"){
-sendText();
+if (!apiKey) {
+return res.status(500).json({ text: "API key missing" });
 }
 
-});
+try {
 
-function sendText(){
+const { prompt } = req.body || {};
 
-const userText = textInput.value.trim();
-
-if(!userText) return;
-
-textInput.value = "";
-
-status.innerText = "Aapne likha: " + userText;
-
-sendToAI(userText);
-
-}
-
-/* ---------------- API CALL ---------------- */
-
-async function sendToAI(userText){
-
-chatDisplay.innerText = "AI soch raha hai...";
-
-try{
-
-const response = await fetch("/api/chat",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
+const response = await fetch(
+`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+{
+method: "POST",
+headers: {
+"Content-Type": "application/json"
 },
-body:JSON.stringify({
-prompt:userText
+body: JSON.stringify({
+contents: [
+{
+parts: [
+{ text: prompt || "Namaste" }
+]
+}
+]
 })
+}
+);
+
+const data = await response.json();
+
+if (!response.ok) {
+
+return res.status(500).json({
+text: data.error?.message || "Gemini API error"
 });
 
-const raw = await response.text();
-
-let data;
-
-try{
-
-data = JSON.parse(raw);
-
-}catch{
-
-data = {text:raw};
-
 }
 
-if(!response.ok){
+const aiText =
+data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-chatDisplay.innerText =
-data.text || "Server Error: AI response nahi mila.";
-
-return;
-
-}
-
-if(data && data.text){
-
-chatDisplay.innerText = data.text;
-
-speak(data.text);
-
-}else{
-
-chatDisplay.innerText = "AI ne koi response nahi diya.";
-
-}
-
-}catch(err){
-
-chatDisplay.innerText =
-"Network Error: Server se connection nahi hua.";
-
-}
-
-}
-
-/* ---------------- SPEECH OUTPUT ---------------- */
-
-function speak(text){
-
-window.speechSynthesis.cancel();
-
-const utterance = new SpeechSynthesisUtterance(text);
-
-utterance.lang = "hi-IN";
-utterance.rate = 1;
-
-window.speechSynthesis.speak(utterance);
-
-}
-
+return res.status(200).json({
+text: aiText || "AI response empty"
 });
+
+} catch (error) {
+
+return res.status(500).json({
+text: "Server error: " + error.message
+});
+
+}
+
+}
  
