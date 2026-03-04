@@ -11,17 +11,25 @@ const sendBtn = document.getElementById("send-btn");
 const SpeechRecognition =
 window.SpeechRecognition || window.webkitSpeechRecognition;
 
-/* -------- VOICE SYSTEM -------- */
+/* ---------------- VOICE SYSTEM ---------------- */
 
-if (SpeechRecognition) {
+if (!SpeechRecognition) {
+
+status.innerText = "Browser speech recognition support nahi karta.";
+
+} else {
 
 const recognition = new SpeechRecognition();
 
 recognition.lang = "hi-IN";
+recognition.continuous = false;
+recognition.interimResults = false;
 
 startBtn.onclick = () => {
 
+chatDisplay.innerText = "";
 recognition.start();
+
 status.innerText = "Suna ja raha hai...";
 
 };
@@ -36,14 +44,24 @@ sendToAI(userText);
 
 };
 
+recognition.onerror = (event) => {
+
+status.innerText = "Speech Error: " + event.error;
+
+};
+
 }
 
-/* -------- TEXT CHAT -------- */
+/* ---------------- TEXT CHAT ---------------- */
 
 sendBtn.onclick = sendText;
 
 textInput.addEventListener("keypress",(e)=>{
-if(e.key==="Enter") sendText();
+
+if(e.key === "Enter"){
+sendText();
+}
+
 });
 
 function sendText(){
@@ -52,7 +70,7 @@ const userText = textInput.value.trim();
 
 if(!userText) return;
 
-textInput.value="";
+textInput.value = "";
 
 status.innerText = "Aapne likha: " + userText;
 
@@ -60,7 +78,7 @@ sendToAI(userText);
 
 }
 
-/* -------- API CALL -------- */
+/* ---------------- API CALL ---------------- */
 
 async function sendToAI(userText){
 
@@ -78,7 +96,28 @@ prompt:userText
 })
 });
 
-const data = await response.json();
+const raw = await response.text();
+
+let data;
+
+try{
+
+data = JSON.parse(raw);
+
+}catch{
+
+data = {text:raw};
+
+}
+
+if(!response.ok){
+
+chatDisplay.innerText =
+data.text || "Server Error: AI response nahi mila.";
+
+return;
+
+}
 
 if(data && data.text){
 
@@ -88,19 +127,20 @@ speak(data.text);
 
 }else{
 
-chatDisplay.innerText="AI response nahi mila.";
+chatDisplay.innerText = "AI ne koi response nahi diya.";
 
 }
 
 }catch(err){
 
-chatDisplay.innerText="Server error.";
+chatDisplay.innerText =
+"Network Error: Server se connection nahi hua.";
 
 }
 
 }
 
-/* -------- SPEECH OUTPUT -------- */
+/* ---------------- SPEECH OUTPUT ---------------- */
 
 function speak(text){
 
@@ -108,7 +148,8 @@ window.speechSynthesis.cancel();
 
 const utterance = new SpeechSynthesisUtterance(text);
 
-utterance.lang="hi-IN";
+utterance.lang = "hi-IN";
+utterance.rate = 1;
 
 window.speechSynthesis.speak(utterance);
 
