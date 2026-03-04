@@ -1,157 +1,141 @@
  
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded",()=>{
 
-const startBtn = document.getElementById("start-btn");
-const status = document.getElementById("status");
-const chatDisplay = document.getElementById("chat-display");
-
+const chatBox = document.getElementById("chat-box");
 const textInput = document.getElementById("text-input");
 const sendBtn = document.getElementById("send-btn");
+const startBtn = document.getElementById("start-btn");
 
 const SpeechRecognition =
 window.SpeechRecognition || window.webkitSpeechRecognition;
 
-/* -------- VOICE SYSTEM -------- */
+/* ---------- ADD MESSAGE ---------- */
 
-if (!SpeechRecognition) {
+function addMessage(text,type){
 
-status.innerText = "Browser speech recognition support nahi karta.";
+const msg=document.createElement("div");
 
-} else {
+msg.className="msg "+type;
 
-const recognition = new SpeechRecognition();
+msg.innerText=text;
 
-recognition.lang = "hi-IN";
-recognition.continuous = false;
-recognition.interimResults = false;
+chatBox.appendChild(msg);
 
-startBtn.onclick = () => {
-
-  chatDisplay.innerText = "";
-
-  recognition.start();
-
-  status.innerText = "Suna ja raha hai...";
-
-};
-
-recognition.onresult = (event) => {
-
-  const userText = event.results[0][0].transcript;
-
-  status.innerText = "Aapne kaha: " + userText;
-
-  sendToAI(userText);
-
-};
-
-recognition.onerror = (event) => {
-
-status.innerText = "Speech Error: " + event.error;
-
-};
+chatBox.scrollTop=chatBox.scrollHeight;
 
 }
 
-/* -------- TEXT CHAT -------- */
+/* ---------- TEXT SEND ---------- */
 
-sendBtn.onclick = sendText;
+sendBtn.onclick=sendText;
 
-textInput.addEventListener("keypress", (e) => {
+textInput.addEventListener("keypress",(e)=>{
 
-if (e.key === "Enter") sendText();
+if(e.key==="Enter") sendText();
 
 });
 
 function sendText(){
 
-const userText = textInput.value.trim();
+const text=textInput.value.trim();
 
-if(!userText) return;
+if(!text) return;
+
+addMessage(text,"user");
 
 textInput.value="";
 
-status.innerText = "Aapne likha: " + userText;
-
-sendToAI(userText);
+sendToAI(text);
 
 }
 
-/* -------- API CALL -------- */
+/* ---------- VOICE ---------- */
 
+if(SpeechRecognition){
 
-async function sendToAI(userText){
+const recognition=new SpeechRecognition();
 
-chatDisplay.innerText = "AI soch raha hai...";
+recognition.lang="hi-IN";
+
+startBtn.onclick=()=>{
+
+recognition.start();
+
+};
+
+recognition.onresult=(event)=>{
+
+const text=event.results[0][0].transcript;
+
+addMessage(text,"user");
+
+sendToAI(text);
+
+};
+
+}
+
+/* ---------- AI CALL ---------- */
+
+async function sendToAI(text){
+
+addMessage("AI soch raha hai...","ai");
 
 try{
 
-const response = await fetch("/api/chat",{
+const res=await fetch("/api/chat",{
+
 method:"POST",
+
 headers:{
 "Content-Type":"application/json"
 },
+
 body:JSON.stringify({
-prompt:userText
+prompt:text
 })
+
 });
 
-const raw = await response.text();
+const data=await res.json();
 
-let data;
-
-try{
-data = JSON.parse(raw);
-}catch{
-data = {text:raw};
-}
-
-if(!response.ok){
-
-chatDisplay.innerText =
-data.text || "Server Error: AI response nahi mila.";
-
-return;
-
-}
+chatBox.lastChild.remove();
 
 if(data && data.text){
 
-chatDisplay.innerText = data.text;
+addMessage(data.text,"ai");
 
 speak(data.text);
 
 }else{
 
-chatDisplay.innerText="AI ne koi response nahi diya.";
+addMessage("AI response nahi mila.","ai");
 
 }
 
-}catch(err){
+}catch{
 
-chatDisplay.innerText="Server se connection nahi hua.";
+chatBox.lastChild.remove();
+
+addMessage("Server error.","ai");
 
 }
 
 }
 
-
-/* -------- SPEECH OUTPUT -------- */
+/* ---------- SPEAK ---------- */
 
 function speak(text){
 
 window.speechSynthesis.cancel();
 
-const utterance = new SpeechSynthesisUtterance(text);
+const u=new SpeechSynthesisUtterance(text);
 
-utterance.lang="hi-IN";
-utterance.rate=1;
+u.lang="hi-IN";
 
-window.speechSynthesis.speak(utterance);
+window.speechSynthesis.speak(u);
 
 }
 
 });
  
-
-
