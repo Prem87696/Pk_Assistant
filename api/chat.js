@@ -1,7 +1,5 @@
 ```javascript
-module.exports = async (req, res) => {
-
-  res.setHeader("Content-Type", "application/json");
+export default async function handler(req, res) {
 
   if (req.method !== "POST") {
     return res.status(405).json({ text: "Method Not Allowed" });
@@ -10,14 +8,14 @@ module.exports = async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ text: "API key missing" });
+    return res.status(500).json({ text: "Missing API key" });
   }
 
   try {
 
     const { prompt } = req.body || {};
 
-    const response = await fetch(
+    const r = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
@@ -34,28 +32,28 @@ module.exports = async (req, res) => {
       }
     );
 
-    const data = await response.json();
+    const data = await r.json();
 
-    if (!response.ok) {
+    if (!r.ok) {
       return res.status(500).json({
-        text: data.error?.message || "Gemini API Error"
+        text: data.error?.message || "Gemini error"
       });
     }
 
-    const aiText =
+    const text =
       data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     return res.status(200).json({
-      text: aiText || "AI response empty"
+      text: text || "No response"
     });
 
-  } catch (error) {
+  } catch (e) {
 
     return res.status(500).json({
-      text: "Server Error: " + error.message
+      text: "Server error: " + e.message
     });
 
   }
 
-};
+}
 ```
