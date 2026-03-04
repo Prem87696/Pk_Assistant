@@ -9,16 +9,23 @@ const sendBtn = document.getElementById("send-btn");
 const SpeechRecognition =
 window.SpeechRecognition || window.webkitSpeechRecognition;
 
-/* ---------- VOICE SYSTEM ---------- */
+/* ---------------- VOICE SYSTEM ---------------- */
 
-if (SpeechRecognition) {
+if (!SpeechRecognition) {
+
+status.innerText = "Browser speech recognition support nahi karta.";
+
+} else {
 
 const recognition = new SpeechRecognition();
 
 recognition.lang = "hi-IN";
+recognition.continuous = false;
+recognition.interimResults = false;
 
 startBtn.onclick = () => {
 
+chatDisplay.innerText = "";
 recognition.start();
 status.innerText = "Suna ja raha hai...";
 
@@ -42,13 +49,17 @@ status.innerText = "Speech Error: " + event.error;
 
 }
 
-/* ---------- TEXT CHAT ---------- */
+/* ---------------- TEXT CHAT ---------------- */
 
 sendBtn.onclick = sendText;
 
-textInput.addEventListener("keypress", function(e){
+textInput.addEventListener("keypress",function(e){
 
-if(e.key==="Enter") sendText();
+if(e.key==="Enter"){
+
+sendText();
+
+}
 
 });
 
@@ -66,7 +77,7 @@ sendToAI(userText);
 
 }
 
-/* ---------- API CALL ---------- */
+/* ---------------- API CALL ---------------- */
 
 async function sendToAI(userText){
 
@@ -79,20 +90,37 @@ const response = await fetch("/api/chat",{
 method:"POST",
 
 headers:{
-
 "Content-Type":"application/json"
-
 },
 
 body:JSON.stringify({
-
 prompt:userText
-
 })
 
 });
 
-const data = await response.json();
+const raw = await response.text();
+
+let data;
+
+try{
+
+data = JSON.parse(raw);
+
+}catch{
+
+data = {text:raw};
+
+}
+
+if(!response.ok){
+
+chatDisplay.innerText =
+data.text || "Server Error: AI response nahi mila.";
+
+return;
+
+}
 
 if(data && data.text){
 
@@ -108,13 +136,13 @@ chatDisplay.innerText="AI ne koi response nahi diya.";
 
 }catch(err){
 
-chatDisplay.innerText="Server se connection nahi hua.";
+chatDisplay.innerText="Network Error: Server se connection nahi hua.";
 
 }
 
 }
 
-/* ---------- SPEECH OUTPUT ---------- */
+/* ---------------- SPEECH OUTPUT ---------------- */
 
 function speak(text){
 
@@ -124,8 +152,9 @@ const utterance = new SpeechSynthesisUtterance(text);
 
 utterance.lang="hi-IN";
 
+utterance.rate=1;
+
 window.speechSynthesis.speak(utterance);
 
 }
  
-
