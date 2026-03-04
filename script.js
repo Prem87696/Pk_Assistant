@@ -1,93 +1,107 @@
-const startBtn = document.getElementById('start-btn');
-const status = document.getElementById('status');
-const chatDisplay = document.getElementById('chat-display');
 
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const startBtn = document.getElementById("start-btn");
+const status = document.getElementById("status");
+const chatDisplay = document.getElementById("chat-display");
+
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
 
 if (!SpeechRecognition) {
 
-    status.innerText = "Browser speech recognition support nahi karta.";
+  status.innerText = "Browser speech recognition support nahi karta.";
 
 } else {
 
-    const recognition = new SpeechRecognition();
+  const recognition = new SpeechRecognition();
 
-    recognition.lang = "hi-IN";
-    recognition.continuous = false;
-    recognition.interimResults = false;
+  recognition.lang = "hi-IN";
+  recognition.continuous = false;
+  recognition.interimResults = false;
 
-    startBtn.onclick = () => {
+  startBtn.onclick = () => {
 
-        recognition.start();
-        status.innerText = "Suna ja raha hai...";
+    chatDisplay.innerText = "";
+    recognition.start();
+    status.innerText = "Suna ja raha hai...";
 
-    };
+  };
 
-    recognition.onresult = async (event) => {
+  recognition.onresult = async (event) => {
 
-        const userText = event.results[0][0].transcript;
+    const userText = event.results[0][0].transcript;
 
-        status.innerText = "Aapne kaha: " + userText;
+    status.innerText = "Aapne kaha: " + userText;
+    chatDisplay.innerText = "AI soch raha hai...";
 
-        chatDisplay.innerText = "AI soch raha hai...";
+    try {
 
-        try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ prompt: userText })
+      });
 
-            const response = await fetch("/api/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ prompt: userText })
-            });
+      // raw response text lete hain (JSON crash avoid karne ke liye)
+      const raw = await response.text();
 
-            if (!response.ok) {
+      let data;
 
-                chatDisplay.innerText = "Server Error: AI response nahi mila.";
-                return;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        data = { text: raw };
+      }
 
-            }
+      if (!response.ok) {
 
-            const data = await response.json();
+        chatDisplay.innerText =
+          data.text || "Server Error: AI response nahi mila.";
 
-            if (data && data.text) {
+        return;
 
-                chatDisplay.innerText = data.text;
+      }
 
-                speak(data.text);
+      if (data && data.text) {
 
-            } else {
+        chatDisplay.innerText = data.text;
 
-                chatDisplay.innerText = "AI ne koi response nahi diya.";
+        speak(data.text);
 
-            }
+      } else {
 
-        } catch (err) {
+        chatDisplay.innerText = "AI ne koi response nahi diya.";
 
-            chatDisplay.innerText = "Network Error: Server se connection nahi hua.";
+      }
 
-        }
+    } catch (err) {
 
-    };
+      chatDisplay.innerText =
+        "Network Error: Server se connection nahi hua.";
 
-    recognition.onerror = (event) => {
+    }
 
-        status.innerText = "Speech Error: " + event.error;
+  };
 
-    };
+  recognition.onerror = (event) => {
+
+    status.innerText = "Speech Error: " + event.error;
+
+  };
 
 }
 
 function speak(text) {
 
-    window.speechSynthesis.cancel();
+  window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
+  const utterance = new SpeechSynthesisUtterance(text);
 
-    utterance.lang = "hi-IN";
+  utterance.lang = "hi-IN";
+  utterance.rate = 1;
 
-    utterance.rate = 1;
-
-    window.speechSynthesis.speak(utterance);
+  window.speechSynthesis.speak(utterance);
 
 }
+
