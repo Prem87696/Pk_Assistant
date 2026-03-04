@@ -1,6 +1,8 @@
 ```javascript
 module.exports = async (req, res) => {
 
+  res.setHeader("Content-Type", "application/json");
+
   if (req.method !== "POST") {
     return res.status(405).json({ text: "Method Not Allowed" });
   }
@@ -25,9 +27,7 @@ module.exports = async (req, res) => {
         body: JSON.stringify({
           contents: [
             {
-              parts: [
-                { text: prompt || "Namaste" }
-              ]
+              parts: [{ text: prompt || "Namaste" }]
             }
           ]
         })
@@ -38,20 +38,20 @@ module.exports = async (req, res) => {
 
     if (!response.ok) {
       return res.status(500).json({
-        text: "Gemini Error: " + (data.error?.message || "Unknown")
+        text: data.error?.message || "Gemini API Error"
       });
     }
 
     const aiText =
       data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    res.status(200).json({
+    return res.status(200).json({
       text: aiText || "AI response empty"
     });
 
   } catch (error) {
 
-    res.status(500).json({
+    return res.status(500).json({
       text: "Server Error: " + error.message
     });
 
