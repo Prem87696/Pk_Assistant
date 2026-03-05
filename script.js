@@ -151,6 +151,7 @@ if(
 text.includes("youtube") ||
 text.includes("you tube") ||
 text.includes("यूट्यूब")
+text.includes(ब")
 ){
 
 addMessage("YouTube खोल रहा हूँ","ai");
@@ -271,3 +272,4 @@ addMessage("Server error","ai");
 }
 
 });
+
