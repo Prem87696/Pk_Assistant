@@ -11,7 +11,7 @@ const micBtn=document.getElementById("mic-btn");
 const SpeechRecognition =
 window.SpeechRecognition || window.webkitSpeechRecognition;
 
-/* TOGGLE ASSISTANT */
+/* OPEN ASSISTANT */
 
 openBtn.onclick=()=>{
 panel.style.display =
@@ -31,6 +31,20 @@ msg.innerText=text;
 chatBox.appendChild(msg);
 
 chatBox.scrollTop=chatBox.scrollHeight;
+
+}
+
+/* SPEAK */
+
+function speak(text){
+
+const speech=new SpeechSynthesisUtterance(text);
+
+speech.lang="hi-IN";
+
+speechSynthesis.cancel();
+
+speechSynthesis.speak(speech);
 
 }
 
@@ -56,33 +70,41 @@ handleCommand(text);
 
 }
 
-/* VOICE INPUT */
+/* MOBILE VOICE */
 
-/* VOICE INPUT MOBILE FIX */
+let recognition;
 
 if(SpeechRecognition){
 
-const recognition = new SpeechRecognition();
+recognition=new SpeechRecognition();
 
-recognition.lang = "hi-IN";
-recognition.continuous = false;
-recognition.interimResults = false;
+recognition.lang="hi-IN";
+recognition.continuous=false;
+recognition.interimResults=false;
 
-micBtn.onclick = () => {
+micBtn.onclick=()=>{
+
+showWave();
 
 addMessage("🎤 Boliyé...","ai");
 
 try{
+
 recognition.start();
+
 }catch(e){
+
 console.log(e);
+
 }
 
 };
 
-recognition.onresult = (event) => {
+recognition.onresult=(event)=>{
 
-const text = event.results[0][0].transcript;
+hideWave();
+
+const text=event.results[0][0].transcript;
 
 addMessage(text,"user");
 
@@ -90,20 +112,52 @@ handleCommand(text);
 
 };
 
-recognition.onerror = (e) => {
+recognition.onerror=(e)=>{
+
+hideWave();
 
 addMessage("Mic error: "+e.error,"ai");
 
 };
 
-recognition.onend = () => {
+recognition.onend=()=>{
 
-console.log("voice stop");
+hideWave();
 
 };
 
 }
 
+/* WAVE */
+
+function showWave(){
+
+let wave=document.createElement("div");
+
+wave.id="voiceWave";
+
+wave.innerHTML=`
+
+<div style="display:flex;gap:4px;margin-top:6px">
+<span style="width:4px;height:14px;background:#3b82f6;animation:w1 1s infinite"></span>
+<span style="width:4px;height:20px;background:#3b82f6;animation:w1 1s infinite .2s"></span>
+<span style="width:4px;height:12px;background:#3b82f6;animation:w1 1s infinite .4s"></span>
+</div>
+`;
+
+chatBox.appendChild(wave);
+
+}
+
+/* REMOVE WAVE */
+
+function hideWave(){
+
+const wave=document.getElementById("voiceWave");
+
+if(wave) wave.remove();
+
+}
 
 /* COMMAND SYSTEM */
 
@@ -119,6 +173,8 @@ const time=new Date().toLocaleTimeString("hi-IN");
 
 addMessage("Abhi time hai "+time,"ai");
 
+speak("Abhi time hai "+time);
+
 return;
 
 }
@@ -128,6 +184,8 @@ return;
 if(text.includes("youtube")){
 
 addMessage("YouTube khol raha hoon","ai");
+
+speak("YouTube khol raha hoon");
 
 window.open("https://youtube.com");
 
@@ -141,6 +199,8 @@ if(text.includes("whatsapp")){
 
 addMessage("WhatsApp Web khol raha hoon","ai");
 
+speak("WhatsApp khol raha hoon");
+
 window.open("https://web.whatsapp.com");
 
 return;
@@ -152,6 +212,8 @@ return;
 if(text.includes("google")){
 
 addMessage("Google khol raha hoon","ai");
+
+speak("Google khol raha hoon");
 
 window.open("https://google.com");
 
@@ -195,6 +257,8 @@ if(data && data.text){
 
 addMessage(data.text,"ai");
 
+speak(data.text);
+
 }else{
 
 addMessage("AI response nahi mila.","ai");
@@ -212,4 +276,3 @@ addMessage("Server error.","ai");
 }
 
 });
-
