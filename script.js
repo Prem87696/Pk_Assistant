@@ -1,4 +1,3 @@
- 
 document.addEventListener("DOMContentLoaded",()=>{
 
 const chatBox = document.getElementById("chat-box");
@@ -17,7 +16,7 @@ const msg=document.createElement("div");
 
 msg.className="msg "+type;
 
-msg.innerText=text;
+msg.innerHTML=text;
 
 chatBox.appendChild(msg);
 
@@ -49,7 +48,7 @@ sendToAI(text);
 
 }
 
-/* ---------- VOICE ---------- */
+/* ---------- VOICE INPUT ---------- */
 
 if(SpeechRecognition){
 
@@ -103,9 +102,19 @@ chatBox.lastChild.remove();
 
 if(data && data.text){
 
-addMessage(data.text,"ai");
+const aiText = data.text;
 
-speak(data.text);
+const message = `
+<div>${aiText}</div>
+<button class="listen-btn">🔊 Listen</button>
+`;
+
+addMessage(message,"ai");
+
+const lastMsg = chatBox.lastChild;
+const btn = lastMsg.querySelector(".listen-btn");
+
+btn.onclick=()=> speak(aiText);
 
 }else{
 
@@ -138,4 +147,3 @@ window.speechSynthesis.speak(u);
 }
 
 });
- 
