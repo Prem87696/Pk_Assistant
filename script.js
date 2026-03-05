@@ -11,18 +11,15 @@ const wakeWord="hey pk";
 const SpeechRecognition=
 window.SpeechRecognition||window.webkitSpeechRecognition;
 
-/* ADD MESSAGE */
+/* MESSAGE */
 
 function addMessage(text,type){
 
 const msg=document.createElement("div");
-
 msg.className="msg "+type;
-
 msg.innerText=text;
 
 chatBox.appendChild(msg);
-
 chatBox.scrollTop=chatBox.scrollHeight;
 
 }
@@ -32,48 +29,14 @@ chatBox.scrollTop=chatBox.scrollHeight;
 function speak(text){
 
 const speech=new SpeechSynthesisUtterance(text);
-
 speech.lang="hi-IN";
 
 speechSynthesis.cancel();
-
 speechSynthesis.speak(speech);
 
 }
 
-/* STREAM TYPING */
-
-function typeMessage(text){
-
-const msg=document.createElement("div");
-
-msg.className="msg ai";
-
-chatBox.appendChild(msg);
-
-let i=0;
-
-function typing(){
-
-if(i<text.length){
-
-msg.innerHTML+=text.charAt(i);
-
-chatBox.scrollTop=chatBox.scrollHeight;
-
-i++;
-
-setTimeout(typing,15);
-
-}
-
-}
-
-typing();
-
-}
-
-/* SEND TEXT */
+/* TEXT SEND */
 
 sendBtn.onclick=sendText;
 
@@ -84,41 +47,39 @@ if(e.key==="Enter") sendText();
 function sendText(){
 
 const text=textInput.value.trim();
-
 if(!text) return;
 
 addMessage(text,"user");
-
 textInput.value="";
 
 handleCommand(text);
 
 }
 
-/* VOICE LISTENING */
+/* VOICE */
 
 if(SpeechRecognition){
 
 const recognition=new SpeechRecognition();
 
 recognition.lang="hi-IN";
-recognition.continuous=true;
-recognition.interimResults=false;
+recognition.continuous=false;
 
-/* AUTO START */
+micBtn.onclick=()=>{
 
 recognition.start();
-
-recognition.onresult=(event)=>{
-
-const text=event.results[event.results.length-1][0].transcript;
-
-detectWakeWord(text);
+addMessage("🎤 Listening...","ai");
 
 };
 
-recognition.onend=()=>{
-recognition.start();
+recognition.onresult=(event)=>{
+
+const text=event.results[0][0].transcript.toLowerCase();
+
+addMessage(text,"user");
+
+detectWakeWord(text);
+
 };
 
 }
@@ -127,14 +88,11 @@ recognition.start();
 
 function detectWakeWord(text){
 
-text=text.toLowerCase();
-
 if(text.includes(wakeWord)){
 
 assistantActive=true;
 
 addMessage("Ji boliye...","ai");
-
 speak("Ji boliye");
 
 return;
@@ -143,10 +101,7 @@ return;
 
 if(assistantActive){
 
-addMessage(text,"user");
-
 handleCommand(text);
-
 assistantActive=false;
 
 }
@@ -157,7 +112,7 @@ assistantActive=false;
 
 function handleCommand(text){
 
-text=text.toLowerCase().trim();
+text=text.toLowerCase();
 
 /* TIME */
 
@@ -166,7 +121,6 @@ if(text.includes("time")){
 const time=new Date().toLocaleTimeString("hi-IN");
 
 addMessage("Abhi time hai "+time,"ai");
-
 speak("Abhi time hai "+time);
 
 return;
@@ -178,7 +132,6 @@ return;
 if(text.includes("youtube")){
 
 addMessage("YouTube khol raha hoon","ai");
-
 speak("YouTube khol raha hoon");
 
 window.open("https://youtube.com");
@@ -192,7 +145,6 @@ return;
 if(text.includes("whatsapp")){
 
 addMessage("WhatsApp khol raha hoon","ai");
-
 speak("WhatsApp khol raha hoon");
 
 window.open("https://web.whatsapp.com");
@@ -201,21 +153,20 @@ return;
 
 }
 
-/* GOOGLE SEARCH */
+/* GOOGLE */
 
-if(text.startsWith("search")){
+if(text.includes("google")){
 
-let q=text.replace("search","");
+addMessage("Google khol raha hoon","ai");
+speak("Google khol raha hoon");
 
-addMessage("Google par search kar raha hoon","ai");
-
-window.open("https://www.google.com/search?q="+encodeURIComponent(q));
+window.open("https://google.com");
 
 return;
 
 }
 
-/* DEFAULT → AI */
+/* DEFAULT AI */
 
 sendToAI(text);
 
@@ -237,9 +188,7 @@ headers:{
 "Content-Type":"application/json"
 },
 
-body:JSON.stringify({
-prompt:text
-})
+body:JSON.stringify({prompt:text})
 
 });
 
@@ -249,8 +198,7 @@ chatBox.lastChild.remove();
 
 if(data && data.text){
 
-typeMessage(data.text);
-
+addMessage(data.text,"ai");
 speak(data.text);
 
 }else{
