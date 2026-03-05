@@ -1,71 +1,61 @@
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", function(){
 
-/* ELEMENTS */
-
-const openBtn=document.getElementById("openAssistant");
-const panel=document.getElementById("assistantPanel");
-
-const chatBox=document.getElementById("chat-box");
-const textInput=document.getElementById("text-input");
-const sendBtn=document.getElementById("send-btn");
-const micBtn=document.getElementById("mic-btn");
-
-/* OPEN ASSISTANT */
-
-openBtn.onclick=()=>{
-panel.style.display =
-panel.style.display==="flex" ? "none" : "flex";
-};
+const chatBox = document.getElementById("chat-box");
+const textInput = document.getElementById("text-input");
+const sendBtn = document.getElementById("send-btn");
+const micBtn = document.getElementById("mic-btn");
 
 /* ADD MESSAGE */
 
 function addMessage(text,type){
 
-const msg=document.createElement("div");
+const msg = document.createElement("div");
 
-msg.className="msg "+type;
+msg.className = "msg " + type;
 
-msg.innerText=text;
+msg.innerText = text;
 
 chatBox.appendChild(msg);
 
-chatBox.scrollTop=chatBox.scrollHeight;
-
-}
-
-/* SPEAK */
-
-function speak(text){
-
-const speech=new SpeechSynthesisUtterance(text);
-
-speech.lang="hi-IN";
-
-speechSynthesis.cancel();
-
-speechSynthesis.speak(speech);
+chatBox.scrollTop = chatBox.scrollHeight;
 
 }
 
 /* SEND TEXT */
 
-sendBtn.onclick=sendText;
-
-textInput.addEventListener("keypress",(e)=>{
-if(e.key==="Enter") sendText();
-});
-
 function sendText(){
 
-const text=textInput.value.trim();
+const text = textInput.value.trim();
 
 if(!text) return;
 
 addMessage(text,"user");
 
-textInput.value="";
+textInput.value = "";
 
 handleCommand(text);
+
+}
+
+sendBtn.onclick = sendText;
+
+textInput.addEventListener("keypress", function(e){
+
+if(e.key === "Enter") sendText();
+
+});
+
+/* SPEAK */
+
+function speak(text){
+
+const speech = new SpeechSynthesisUtterance(text);
+
+speech.lang = "hi-IN";
+
+speechSynthesis.cancel();
+
+speechSynthesis.speak(speech);
 
 }
 
@@ -74,35 +64,29 @@ handleCommand(text);
 const SpeechRecognition =
 window.SpeechRecognition || window.webkitSpeechRecognition;
 
-let recognition;
-
 if(SpeechRecognition){
 
-recognition=new SpeechRecognition();
+const recognition = new SpeechRecognition();
 
-recognition.lang="hi-IN";
-recognition.continuous=false;
-recognition.interimResults=false;
+recognition.lang = "hi-IN";
+recognition.continuous = false;
+recognition.interimResults = false;
 
-micBtn.onclick=()=>{
+micBtn.onclick = function(){
 
 addMessage("🎤 बोलिए...","ai");
 
-setTimeout(()=>{
-try{
+setTimeout(function(){
+
 recognition.start();
-}catch(e){
-console.log(e);
-}
+
 },200);
 
 };
 
-/* RESULT */
+recognition.onresult = function(event){
 
-recognition.onresult=(event)=>{
-
-const text=event.results[0][0].transcript;
+const text = event.results[0][0].transcript;
 
 addMessage(text,"user");
 
@@ -110,11 +94,9 @@ handleCommand(text);
 
 };
 
-/* ERROR */
+recognition.onerror = function(e){
 
-recognition.onerror=(e)=>{
-
-addMessage("Mic error: "+e.error,"ai");
+addMessage("Mic error: " + e.error,"ai");
 
 };
 
@@ -124,22 +106,21 @@ addMessage("Mic error: "+e.error,"ai");
 
 function handleCommand(text){
 
-text=text.toLowerCase().trim();
+text = text.toLowerCase().trim();
 
 /* TIME */
 
 if(
 text.includes("time") ||
-text.includes("samay") ||
 text.includes("समय") ||
 text.includes("टाइम")
 ){
 
-const time=new Date().toLocaleTimeString("hi-IN");
+const time = new Date().toLocaleTimeString("hi-IN");
 
-addMessage("अभी समय है "+time,"ai");
+addMessage("अभी समय है " + time,"ai");
 
-speak("अभी समय है "+time);
+speak("अभी समय है " + time);
 
 return;
 
@@ -149,33 +130,16 @@ return;
 
 if(
 text.includes("youtube") ||
-text.includes("you tube") ||
-text.includes("यूट्यूब")
-text.includes(ब")
+text.includes("utube") ||
+text.includes("यूट") ||
+text.includes("यू ट्यूब")
 ){
 
-addMessage("YouTube खोल रहा हूँ","ai");
+addMessage("यूट्यूब खोल रहा हूँ","ai");
 
 speak("यूट्यूब खोल रहा हूँ");
 
 window.open("https://youtube.com");
-
-return;
-
-}
-
-/* WHATSAPP */
-
-if(
-text.includes("whatsapp") ||
-text.includes("व्हाट्सएप")
-){
-
-addMessage("WhatsApp खोल रहा हूँ","ai");
-
-speak("व्हाट्सएप खोल रहा हूँ");
-
-window.open("https://web.whatsapp.com");
 
 return;
 
@@ -188,11 +152,28 @@ text.includes("google") ||
 text.includes("गूगल")
 ){
 
-addMessage("Google खोल रहा हूँ","ai");
+addMessage("गूगल खोल रहा हूँ","ai");
 
 speak("गूगल खोल रहा हूँ");
 
 window.open("https://google.com");
+
+return;
+
+}
+
+/* WHATSAPP */
+
+if(
+text.includes("whatsapp") ||
+text.includes("व्हाट्सएप")
+){
+
+addMessage("व्हाट्सएप खोल रहा हूँ","ai");
+
+speak("व्हाट्सएप खोल रहा हूँ");
+
+window.open("https://web.whatsapp.com");
 
 return;
 
@@ -205,12 +186,12 @@ text.startsWith("search") ||
 text.includes("खोजो")
 ){
 
-let q=text.replace("search","").replace("खोजो","");
+let q = text.replace("search","").replace("खोजो","");
 
 addMessage("Google पर खोज रहा हूँ","ai");
 
 window.open(
-"https://www.google.com/search?q="+encodeURIComponent(q)
+"https://www.google.com/search?q=" + encodeURIComponent(q)
 );
 
 return;
@@ -231,7 +212,7 @@ addMessage("AI सोच रहा है...","ai");
 
 try{
 
-const res=await fetch("/api/chat",{
+const res = await fetch("/api/chat",{
 
 method:"POST",
 
@@ -245,7 +226,7 @@ prompt:text
 
 });
 
-const data=await res.json();
+const data = await res.json();
 
 chatBox.lastChild.remove();
 
@@ -272,4 +253,3 @@ addMessage("Server error","ai");
 }
 
 });
-
