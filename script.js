@@ -27,6 +27,52 @@ chatBox.scrollTop=chatBox.scrollHeight;
 
 }
 
+/* SPEAK */
+
+function speak(text){
+
+const speech=new SpeechSynthesisUtterance(text);
+
+speech.lang="hi-IN";
+
+speechSynthesis.cancel();
+
+speechSynthesis.speak(speech);
+
+}
+
+/* STREAM TYPING */
+
+function typeMessage(text){
+
+const msg=document.createElement("div");
+
+msg.className="msg ai";
+
+chatBox.appendChild(msg);
+
+let i=0;
+
+function typing(){
+
+if(i<text.length){
+
+msg.innerHTML+=text.charAt(i);
+
+chatBox.scrollTop=chatBox.scrollHeight;
+
+i++;
+
+setTimeout(typing,15);
+
+}
+
+}
+
+typing();
+
+}
+
 /* SEND TEXT */
 
 sendBtn.onclick=sendText;
@@ -49,7 +95,7 @@ handleCommand(text);
 
 }
 
-/* VOICE SYSTEM */
+/* VOICE LISTENING */
 
 if(SpeechRecognition){
 
@@ -57,20 +103,22 @@ const recognition=new SpeechRecognition();
 
 recognition.lang="hi-IN";
 recognition.continuous=true;
+recognition.interimResults=false;
 
-micBtn.onclick=()=>{
+/* AUTO START */
+
 recognition.start();
-addMessage("🎤 Listening...","ai");
-};
 
 recognition.onresult=(event)=>{
 
 const text=event.results[event.results.length-1][0].transcript;
 
-addMessage(text,"user");
-
 detectWakeWord(text);
 
+};
+
+recognition.onend=()=>{
+recognition.start();
 };
 
 }
@@ -87,11 +135,15 @@ assistantActive=true;
 
 addMessage("Ji boliye...","ai");
 
+speak("Ji boliye");
+
 return;
 
 }
 
 if(assistantActive){
+
+addMessage(text,"user");
 
 handleCommand(text);
 
@@ -105,15 +157,17 @@ assistantActive=false;
 
 function handleCommand(text){
 
-text=text.toLowerCase();
+text=text.toLowerCase().trim();
 
-/* TIME COMMAND (NO API CALL) */
+/* TIME */
 
-if(text.includes("time") || text.includes("samay")){
+if(text.includes("time")){
 
 const time=new Date().toLocaleTimeString("hi-IN");
 
 addMessage("Abhi time hai "+time,"ai");
+
+speak("Abhi time hai "+time);
 
 return;
 
@@ -123,21 +177,39 @@ return;
 
 if(text.includes("youtube")){
 
-window.open("https://youtube.com");
-
 addMessage("YouTube khol raha hoon","ai");
+
+speak("YouTube khol raha hoon");
+
+window.open("https://youtube.com");
 
 return;
 
 }
 
-/* GOOGLE */
+/* WHATSAPP */
 
-if(text.includes("google")){
+if(text.includes("whatsapp")){
 
-window.open("https://google.com");
+addMessage("WhatsApp khol raha hoon","ai");
 
-addMessage("Google open kar raha hoon","ai");
+speak("WhatsApp khol raha hoon");
+
+window.open("https://web.whatsapp.com");
+
+return;
+
+}
+
+/* GOOGLE SEARCH */
+
+if(text.startsWith("search")){
+
+let q=text.replace("search","");
+
+addMessage("Google par search kar raha hoon","ai");
+
+window.open("https://www.google.com/search?q="+encodeURIComponent(q));
 
 return;
 
@@ -177,7 +249,9 @@ chatBox.lastChild.remove();
 
 if(data && data.text){
 
-addMessage(data.text,"ai");
+typeMessage(data.text);
+
+speak(data.text);
 
 }else{
 
