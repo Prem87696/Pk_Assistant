@@ -1,5 +1,5 @@
- 
 <!DOCTYPE html>
+
 <html lang="hi">
 <head>
 
@@ -12,7 +12,7 @@
 
 body{
 margin:0;
-font-family:Arial;
+font-family:Arial, sans-serif;
 background:#0f172a;
 display:flex;
 justify-content:center;
@@ -23,17 +23,19 @@ color:white;
 
 .card{
 width:380px;
+height:520px;
 background:#1e293b;
 border-radius:14px;
 padding:20px;
 display:flex;
 flex-direction:column;
-height:520px;
+box-shadow:0 10px 30px rgba(0,0,0,0.4);
 }
 
 h2{
 text-align:center;
-margin-top:0;
+margin:0 0 10px 0;
+font-size:20px;
 }
 
 .chat-box{
@@ -43,6 +45,8 @@ background:#0f172a;
 padding:10px;
 border-radius:10px;
 margin-bottom:10px;
+display:flex;
+flex-direction:column;
 }
 
 .msg{
@@ -51,6 +55,8 @@ padding:10px;
 margin:6px 0;
 border-radius:10px;
 font-size:14px;
+line-height:1.4;
+word-wrap:break-word;
 }
 
 .user{
@@ -63,9 +69,28 @@ background:#334155;
 align-self:flex-start;
 }
 
+.listen-btn{
+margin-top:6px;
+padding:5px 10px;
+border:none;
+border-radius:6px;
+background:#3b82f6;
+color:white;
+font-size:12px;
+cursor:pointer;
+}
+
+.listen-btn:hover{
+background:#2563eb;
+}
+
+.voice{
+margin-bottom:8px;
+}
+
 .controls{
 display:flex;
-gap:5px;
+gap:6px;
 }
 
 input{
@@ -73,6 +98,8 @@ flex:1;
 padding:10px;
 border:none;
 border-radius:6px;
+outline:none;
+font-size:14px;
 }
 
 button{
@@ -82,14 +109,11 @@ padding:10px 14px;
 border-radius:6px;
 color:white;
 cursor:pointer;
+font-size:14px;
 }
 
 button:hover{
 background:#2563eb;
-}
-
-.voice{
-margin-bottom:8px;
 }
 
 </style>
@@ -104,13 +128,22 @@ margin-bottom:8px;
 
 <div id="chat-box" class="chat-box"></div>
 
-<button id="start-btn" class="voice">🎤 Bolne ke liye Dabayein</button>
+<button id="start-btn" class="voice">
+🎤 Bolne ke liye Dabayein
+</button>
 
 <div class="controls">
 
-<input id="text-input" placeholder="Message likhein..." />
+<input 
+id="text-input"
+type="text"
+placeholder="Message likhein..."
+autocomplete="off"
+/>
 
-<button id="send-btn">Send</button>
+<button id="send-btn">
+Send
+</button>
 
 </div>
 
@@ -120,4 +153,3 @@ margin-bottom:8px;
 
 </body>
 </html>
- 
