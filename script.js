@@ -1,42 +1,40 @@
 document.addEventListener("DOMContentLoaded",()=>{
 
+const openBtn=document.getElementById("openAssistant");
+const panel=document.getElementById("assistantPanel");
+
 const chatBox=document.getElementById("chat-box");
 const textInput=document.getElementById("text-input");
 const sendBtn=document.getElementById("send-btn");
 const micBtn=document.getElementById("mic-btn");
 
-let assistantActive=false;
-const wakeWord="hey pk";
+const SpeechRecognition =
+window.SpeechRecognition || window.webkitSpeechRecognition;
 
-const SpeechRecognition=
-window.SpeechRecognition||window.webkitSpeechRecognition;
+/* TOGGLE ASSISTANT */
 
-/* MESSAGE */
+openBtn.onclick=()=>{
+panel.style.display =
+panel.style.display==="flex" ? "none" : "flex";
+};
+
+/* ADD MESSAGE */
 
 function addMessage(text,type){
 
 const msg=document.createElement("div");
+
 msg.className="msg "+type;
+
 msg.innerText=text;
 
 chatBox.appendChild(msg);
+
 chatBox.scrollTop=chatBox.scrollHeight;
 
 }
 
-/* SPEAK */
-
-function speak(text){
-
-const speech=new SpeechSynthesisUtterance(text);
-speech.lang="hi-IN";
-
-speechSynthesis.cancel();
-speechSynthesis.speak(speech);
-
-}
-
-/* TEXT SEND */
+/* SEND TEXT */
 
 sendBtn.onclick=sendText;
 
@@ -47,64 +45,39 @@ if(e.key==="Enter") sendText();
 function sendText(){
 
 const text=textInput.value.trim();
+
 if(!text) return;
 
 addMessage(text,"user");
+
 textInput.value="";
 
 handleCommand(text);
 
 }
 
-/* VOICE */
+/* VOICE INPUT */
 
 if(SpeechRecognition){
 
 const recognition=new SpeechRecognition();
 
 recognition.lang="hi-IN";
-recognition.continuous=false;
 
 micBtn.onclick=()=>{
-
 recognition.start();
 addMessage("🎤 Listening...","ai");
-
 };
 
 recognition.onresult=(event)=>{
 
-const text=event.results[0][0].transcript.toLowerCase();
+const text=event.results[0][0].transcript;
 
 addMessage(text,"user");
 
-detectWakeWord(text);
+handleCommand(text);
 
 };
-
-}
-
-/* WAKE WORD */
-
-function detectWakeWord(text){
-
-if(text.includes(wakeWord)){
-
-assistantActive=true;
-
-addMessage("Ji boliye...","ai");
-speak("Ji boliye");
-
-return;
-
-}
-
-if(assistantActive){
-
-handleCommand(text);
-assistantActive=false;
-
-}
 
 }
 
@@ -121,7 +94,6 @@ if(text.includes("time")){
 const time=new Date().toLocaleTimeString("hi-IN");
 
 addMessage("Abhi time hai "+time,"ai");
-speak("Abhi time hai "+time);
 
 return;
 
@@ -132,7 +104,6 @@ return;
 if(text.includes("youtube")){
 
 addMessage("YouTube khol raha hoon","ai");
-speak("YouTube khol raha hoon");
 
 window.open("https://youtube.com");
 
@@ -144,8 +115,7 @@ return;
 
 if(text.includes("whatsapp")){
 
-addMessage("WhatsApp khol raha hoon","ai");
-speak("WhatsApp khol raha hoon");
+addMessage("WhatsApp Web khol raha hoon","ai");
 
 window.open("https://web.whatsapp.com");
 
@@ -158,7 +128,6 @@ return;
 if(text.includes("google")){
 
 addMessage("Google khol raha hoon","ai");
-speak("Google khol raha hoon");
 
 window.open("https://google.com");
 
@@ -172,7 +141,7 @@ sendToAI(text);
 
 }
 
-/* AI CALL */
+/* GEMINI API */
 
 async function sendToAI(text){
 
@@ -188,7 +157,9 @@ headers:{
 "Content-Type":"application/json"
 },
 
-body:JSON.stringify({prompt:text})
+body:JSON.stringify({
+prompt:text
+})
 
 });
 
@@ -199,7 +170,6 @@ chatBox.lastChild.remove();
 if(data && data.text){
 
 addMessage(data.text,"ai");
-speak(data.text);
 
 }else{
 
