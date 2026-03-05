@@ -58,20 +58,31 @@ handleCommand(text);
 
 /* VOICE INPUT */
 
+/* VOICE INPUT MOBILE FIX */
+
 if(SpeechRecognition){
 
-const recognition=new SpeechRecognition();
+const recognition = new SpeechRecognition();
 
-recognition.lang="hi-IN";
+recognition.lang = "hi-IN";
+recognition.continuous = false;
+recognition.interimResults = false;
 
-micBtn.onclick=()=>{
+micBtn.onclick = () => {
+
+addMessage("🎤 Boliyé...","ai");
+
+try{
 recognition.start();
-addMessage("🎤 Listening...","ai");
+}catch(e){
+console.log(e);
+}
+
 };
 
-recognition.onresult=(event)=>{
+recognition.onresult = (event) => {
 
-const text=event.results[0][0].transcript;
+const text = event.results[0][0].transcript;
 
 addMessage(text,"user");
 
@@ -79,7 +90,20 @@ handleCommand(text);
 
 };
 
+recognition.onerror = (e) => {
+
+addMessage("Mic error: "+e.error,"ai");
+
+};
+
+recognition.onend = () => {
+
+console.log("voice stop");
+
+};
+
 }
+
 
 /* COMMAND SYSTEM */
 
@@ -188,3 +212,4 @@ addMessage("Server error.","ai");
 }
 
 });
+
