@@ -82,11 +82,15 @@ recognition.lang="hi-IN";
 recognition.continuous=false;
 recognition.interimResults=false;
 
-micBtn.onclick=()=>{
+micBtn.onclick = () => {
 
-showWave();
+console.log("mic clicked");
 
 addMessage("🎤 Boliyé...","ai");
+
+recognition.start();
+
+};
 
 try{
 
@@ -276,3 +280,4 @@ addMessage("Server error.","ai");
 }
 
 });
+
